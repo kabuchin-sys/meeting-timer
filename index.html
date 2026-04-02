@@ -630,70 +630,62 @@
       </svg>`;
     }
 
-    // ---- Audio (Web Audio API for iOS compatibility) ----
+    // ---- Audio (iOS compatible) ----
+    // Do NOT create AudioContext until user gesture (iOS requirement)
     let audioCtx = null;
     let bell1Buffer = null;
     let bell2Buffer = null;
-    let audioUnlocked = false;
+    let bell1Raw = null;
+    let bell2Raw = null;
+    let audioReady = false;
 
-    function getAudioCtx() {
+    // Pre-fetch raw audio data (no AudioContext needed)
+    fetch('bell1.mp3').then(r => r.arrayBuffer()).then(b => { bell1Raw = b; });
+    fetch('bell2.mp3').then(r => r.arrayBuffer()).then(b => { bell2Raw = b; });
+
+    async function ensureAudioReady() {
+      if (audioReady) return;
+      // Create AudioContext inside user gesture
       if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       }
-      return audioCtx;
-    }
-
-    async function loadAudioBuffer(url) {
-      const response = await fetch(url);
-      const arrayBuffer = await response.arrayBuffer();
-      return await getAudioCtx().decodeAudioData(arrayBuffer);
-    }
-
-    async function initAudio() {
-      try {
-        bell1Buffer = await loadAudioBuffer('bell1.mp3');
-        bell2Buffer = await loadAudioBuffer('bell2.mp3');
-        console.log('Audio buffers loaded');
-      } catch (e) {
-        console.log('Audio load error:', e);
+      // Resume if suspended
+      if (audioCtx.state === 'suspended') {
+        await audioCtx.resume();
       }
-    }
-
-    async function unlockAudio() {
-      if (audioUnlocked) return;
-      const ctx = getAudioCtx();
-      if (ctx.state === 'suspended') {
-        await ctx.resume();
+      // Play silent buffer to fully unlock iOS audio
+      const silentBuf = audioCtx.createBuffer(1, 1, 22050);
+      const silentSrc = audioCtx.createBufferSource();
+      silentSrc.buffer = silentBuf;
+      silentSrc.connect(audioCtx.destination);
+      silentSrc.start(0);
+      // Decode audio buffers
+      if (bell1Raw && !bell1Buffer) {
+        bell1Buffer = await audioCtx.decodeAudioData(bell1Raw.slice(0));
       }
-      // Play silent buffer to unlock
-      const buf = ctx.createBuffer(1, 1, 22050);
-      const src = ctx.createBufferSource();
-      src.buffer = buf;
-      src.connect(ctx.destination);
-      src.start(0);
-      audioUnlocked = true;
-      console.log('Audio unlocked');
+      if (bell2Raw && !bell2Buffer) {
+        bell2Buffer = await audioCtx.decodeAudioData(bell2Raw.slice(0));
+      }
+      audioReady = true;
+      console.log('Audio ready, ctx state:', audioCtx.state);
     }
 
     function playBuffer(buffer) {
-      if (!buffer) return;
-      const ctx = getAudioCtx();
-      if (ctx.state === 'suspended') ctx.resume();
-      const source = ctx.createBufferSource();
-      const gain = ctx.createGain();
+      if (!buffer || !audioCtx) return;
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const source = audioCtx.createBufferSource();
+      const gain = audioCtx.createGain();
       source.buffer = buffer;
       gain.gain.value = 1.0;
       source.connect(gain);
-      gain.connect(ctx.destination);
+      gain.connect(audioCtx.destination);
       source.start(0);
     }
 
     function playChime(count = 1) {
       showChimeAnimation();
       for (let i = 0; i < count; i++) {
-        setTimeout(() => {
-          playBuffer(bell1Buffer);
-        }, i * 1500);
+        setTimeout(() => playBuffer(bell1Buffer), i * 1500);
       }
     }
 
@@ -701,9 +693,6 @@
       showChimeAnimation();
       playBuffer(bell2Buffer);
     }
-
-    // Load audio buffers on page load
-    initAudio();
 
     function showChimeAnimation() {
       const overlay = document.getElementById('chimeOverlay');
@@ -873,9 +862,9 @@
     }
 
     async function toggleTimer() {
-      // Unlock audio on first user gesture (required for iOS)
-      // await ensures AudioContext is ready before timer starts
-      await unlockAudio();
+      // Create & unlock AudioContext on this user gesture (iOS requirement)
+      // Must await so audio is fully ready before timer starts
+      await ensureAudioReady();
 
       if (timerState === 'running') {
         pauseTimer();
@@ -1116,9 +1105,9 @@
 
     init();
 
-    // Unlock audio on any user touch/click (iOS requirement)
+    // Also unlock audio on any user touch/click (iOS requirement)
     ['touchstart', 'click'].forEach(evt => {
-      document.addEventListener(evt, unlockAudio, { once: true });
+      document.addEventListener(evt, () => ensureAudioReady(), { once: true });
     });
 
     if ('serviceWorker' in navigator) {
