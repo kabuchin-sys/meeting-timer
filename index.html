@@ -361,6 +361,48 @@
     }
 
     .hidden { display: none !important; }
+
+    /* Full-screen message overlay */
+    .fullscreen-msg {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s;
+    }
+    .fullscreen-msg.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .fullscreen-msg.next-round {
+      background: linear-gradient(135deg, #0a3d6b 0%, #1a6b3a 50%, #0a3d6b 100%) !important;
+    }
+    .fullscreen-msg.finished {
+      background: linear-gradient(135deg, #6b0a0a 0%, #c01515 50%, #6b0a0a 100%) !important;
+    }
+    .fullscreen-msg .msg-text {
+      font-size: 3.5rem;
+      font-weight: 700;
+      color: #fff;
+      text-align: center;
+      text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      animation: msgPop 0.5s ease-out;
+    }
+    .fullscreen-msg .msg-sub {
+      font-size: 1.2rem;
+      color: rgba(255,255,255,0.7);
+      margin-top: 12px;
+      text-align: center;
+    }
+    @keyframes msgPop {
+      0% { transform: scale(0.5); opacity: 0; }
+      70% { transform: scale(1.1); }
+      100% { transform: scale(1); opacity: 1; }
+    }
   </style>
 </head>
 <body class="bg-default">
@@ -466,6 +508,19 @@
     </svg>
   </div>
 
+  <!-- Full-screen message overlays -->
+  <div class="fullscreen-msg next-round" id="nextRoundOverlay">
+    <div>
+      <div class="msg-text">次の方どうぞ</div>
+      <div class="msg-sub" id="nextRoundSub"></div>
+    </div>
+  </div>
+  <div class="fullscreen-msg finished" id="finishedOverlay">
+    <div>
+      <div class="msg-text">終了</div>
+    </div>
+  </div>
+
   <script>
     // ---- Bell SVG ----
     function bellSVG(size = 24, color = '#ffd700') {
@@ -548,6 +603,26 @@
       void overlay.offsetWidth;
       overlay.classList.add('show');
       setTimeout(() => overlay.classList.remove('show'), 900);
+    }
+
+    // ---- Full-screen messages ----
+    function showNextRound(nextRound, total, callback) {
+      const overlay = document.getElementById('nextRoundOverlay');
+      document.getElementById('nextRoundSub').textContent = `ラウンド ${nextRound} / ${total}`;
+      overlay.classList.add('show');
+      setTimeout(() => {
+        overlay.classList.remove('show');
+        if (callback) callback();
+      }, 3000);
+    }
+
+    function showFinished() {
+      const overlay = document.getElementById('finishedOverlay');
+      overlay.classList.add('show');
+      setTimeout(() => {
+        overlay.classList.remove('show');
+        resetBackground();
+      }, 3000);
     }
 
     // ---- Background Color (blue -> green -> red) ----
@@ -703,6 +778,54 @@
     }
 
     // ---- Timer Logic ----
+    function timerTick() {
+      const now = Date.now();
+      const delta = now - lastTick;
+      lastTick = now;
+      remainingMs -= delta;
+
+      const elapsedMs = totalMs - remainingMs;
+      const elapsedSec = Math.floor(elapsedMs / 1000);
+      checkpoints.forEach((cp, i) => {
+        const key = `${currentRound}-${i}`;
+        if (elapsedSec >= cp.elapsedSec && !passedCheckpoints.has(key)) {
+          passedCheckpoints.add(key);
+          playChime(cp.chimeCount);
+          updateCpIndicators();
+        }
+      });
+
+      if (remainingMs <= 0) {
+        remainingMs = 0;
+        updateDisplay();
+        playEndChime();
+
+        if (currentRound < totalRounds) {
+          clearInterval(intervalId);
+          const nextRound = currentRound + 1;
+          showNextRound(nextRound, totalRounds, () => {
+            currentRound = nextRound;
+            remainingMs = totalMs;
+            passedCheckpoints = new Set([...passedCheckpoints].filter(k => !k.startsWith(`${currentRound}-`)));
+            resetBackground();
+            renderCpIndicators();
+            updateDisplay();
+            lastTick = Date.now();
+            intervalId = setInterval(timerTick, 50);
+          });
+          return;
+        } else {
+          clearInterval(intervalId);
+          timerState = 'stopped';
+          updateButton();
+          showFinished();
+          return;
+        }
+      }
+
+      updateDisplay();
+    }
+
     function startTimer() {
       const s = getSettings();
       totalMs = (s.minutes * 60 + s.seconds) * 1000;
@@ -723,43 +846,7 @@
       updateButton();
       renderCpIndicators();
 
-      intervalId = setInterval(() => {
-        const now = Date.now();
-        const delta = now - lastTick;
-        lastTick = now;
-        remainingMs -= delta;
-
-        const elapsedMs = totalMs - remainingMs;
-        const elapsedSec = Math.floor(elapsedMs / 1000);
-        checkpoints.forEach((cp, i) => {
-          const key = `${currentRound}-${i}`;
-          if (elapsedSec >= cp.elapsedSec && !passedCheckpoints.has(key)) {
-            passedCheckpoints.add(key);
-            playChime(cp.chimeCount);
-            updateCpIndicators();
-          }
-        });
-
-        if (remainingMs <= 0) {
-          remainingMs = 0;
-          updateDisplay();
-          playEndChime();
-
-          if (currentRound < totalRounds) {
-            currentRound++;
-            remainingMs = totalMs;
-            passedCheckpoints = new Set([...passedCheckpoints].filter(k => !k.startsWith(`${currentRound}-`)));
-            renderCpIndicators();
-          } else {
-            clearInterval(intervalId);
-            timerState = 'stopped';
-            updateButton();
-            return;
-          }
-        }
-
-        updateDisplay();
-      }, 50);
+      intervalId = setInterval(timerTick, 50);
     }
 
     function pauseTimer() {
