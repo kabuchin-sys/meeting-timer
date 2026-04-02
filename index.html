@@ -659,11 +659,11 @@
       }
     }
 
-    function unlockAudio() {
+    async function unlockAudio() {
       if (audioUnlocked) return;
       const ctx = getAudioCtx();
       if (ctx.state === 'suspended') {
-        ctx.resume();
+        await ctx.resume();
       }
       // Play silent buffer to unlock
       const buf = ctx.createBuffer(1, 1, 22050);
@@ -872,9 +872,10 @@
       renderCpIndicators();
     }
 
-    function toggleTimer() {
+    async function toggleTimer() {
       // Unlock audio on first user gesture (required for iOS)
-      unlockAudio();
+      // await ensures AudioContext is ready before timer starts
+      await unlockAudio();
 
       if (timerState === 'running') {
         pauseTimer();
