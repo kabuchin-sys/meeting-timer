@@ -14,11 +14,15 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3e 50%, #0a0a1a 100%);
       color: #eee;
       min-height: 100vh;
       min-height: 100dvh;
       overflow-x: hidden;
+      transition: background 0.5s ease;
+    }
+
+    .bg-default {
+      background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3e 50%, #0a0a1a 100%);
     }
 
     .app {
@@ -38,41 +42,11 @@
       font-size: 1.1rem;
       color: #fff;
       letter-spacing: 3px;
-      text-transform: uppercase;
       font-weight: 300;
     }
     .header h1 span {
       color: #ff6b6b;
       font-weight: 700;
-    }
-
-    /* Preset Tabs */
-    .tabs {
-      display: flex;
-      gap: 6px;
-      margin: 8px 0;
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
-    .tabs::-webkit-scrollbar { display: none; }
-    .tab {
-      flex-shrink: 0;
-      padding: 8px 16px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 20px;
-      color: #888;
-      font-size: 0.8rem;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.3s;
-      backdrop-filter: blur(10px);
-    }
-    .tab.active {
-      background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-      color: #fff;
-      border-color: transparent;
-      box-shadow: 0 4px 15px rgba(255,107,107,0.3);
     }
 
     /* View Toggle */
@@ -100,8 +74,6 @@
       background: rgba(255,255,255,0.1);
       color: #fff;
     }
-
-    /* ===== TIMER VIEW ===== */
 
     /* Circular Timer */
     .circle-timer {
@@ -191,7 +163,7 @@
       gap: 8px;
       justify-content: center;
       margin: 4px 0 12px;
-      min-height: 40px;
+      min-height: 20px;
     }
     .bell-card {
       display: flex;
@@ -202,42 +174,19 @@
       border: 1px solid rgba(255,255,255,0.08);
       border-radius: 20px;
       transition: all 0.3s;
-      backdrop-filter: blur(10px);
     }
     .bell-card.passed {
       background: rgba(255,107,107,0.15);
       border-color: rgba(255,107,107,0.4);
       box-shadow: 0 0 15px rgba(255,107,107,0.15);
     }
-    .bell-card .bell-icon {
-      width: 20px;
-      height: 20px;
-      opacity: 0.4;
-      transition: all 0.3s;
-    }
-    .bell-card.passed .bell-icon {
-      opacity: 1;
-      animation: bellRing 0.5s ease-in-out;
-    }
-    .bell-card .bell-label {
-      font-size: 0.75rem;
-      color: #888;
-    }
-    .bell-card.passed .bell-label {
-      color: #ff6b6b;
-    }
-    .bell-card .bell-count {
-      display: flex;
-      gap: 2px;
-    }
-    .bell-card .bell-count .mini-bell {
-      width: 12px;
-      height: 12px;
-      opacity: 0.3;
-    }
-    .bell-card.passed .bell-count .mini-bell {
-      opacity: 1;
-    }
+    .bell-card .bell-icon { width: 20px; height: 20px; opacity: 0.4; transition: all 0.3s; }
+    .bell-card.passed .bell-icon { opacity: 1; animation: bellRing 0.5s ease-in-out; }
+    .bell-card .bell-label { font-size: 0.75rem; color: #888; }
+    .bell-card.passed .bell-label { color: #ff6b6b; }
+    .bell-card .bell-count { display: flex; gap: 2px; }
+    .bell-card .mini-bell { width: 12px; height: 12px; opacity: 0.3; }
+    .bell-card.passed .mini-bell { opacity: 1; }
 
     @keyframes bellRing {
       0% { transform: rotate(0deg); }
@@ -260,16 +209,13 @@
       opacity: 0;
       transition: opacity 0.3s;
     }
-    .chime-overlay.show {
-      opacity: 1;
-    }
+    .chime-overlay.show { opacity: 1; }
     .chime-bell-big {
       width: 120px;
       height: 120px;
       animation: bellSwing 0.8s ease-in-out;
       filter: drop-shadow(0 0 30px rgba(255,215,0,0.6));
     }
-
     @keyframes bellSwing {
       0% { transform: rotate(0deg) scale(0.5); opacity: 0; }
       20% { transform: rotate(20deg) scale(1.1); opacity: 1; }
@@ -314,7 +260,6 @@
       background: rgba(255,255,255,0.08);
       color: #aaa;
       border: 1px solid rgba(255,255,255,0.1);
-      backdrop-filter: blur(10px);
     }
 
     /* ===== SETTINGS VIEW ===== */
@@ -324,7 +269,6 @@
       border-radius: 16px;
       padding: 20px;
       margin-top: 8px;
-      backdrop-filter: blur(10px);
     }
     .settings-panel h2 {
       font-size: 0.9rem;
@@ -335,10 +279,7 @@
       align-items: center;
       gap: 8px;
     }
-    .settings-panel h2 .icon-sm {
-      width: 18px;
-      height: 18px;
-    }
+    .settings-panel h2 .icon-sm { width: 18px; height: 18px; }
 
     .form-group {
       margin-bottom: 16px;
@@ -360,19 +301,20 @@
       font-size: 0.85rem;
     }
 
-    input[type="number"], select {
+    /* Number inputs - tel type for numeric keypad */
+    input[type="tel"] {
       background: rgba(255,255,255,0.08);
       border: 1px solid rgba(255,255,255,0.12);
       border-radius: 10px;
       color: #fff;
       padding: 10px 12px;
-      font-size: 1rem;
-      width: 80px;
+      font-size: 1.1rem;
+      width: 70px;
       text-align: center;
       -webkit-appearance: none;
       transition: border-color 0.3s;
     }
-    input[type="number"]:focus, select:focus {
+    input[type="tel"]:focus {
       outline: none;
       border-color: #ff6b6b;
       box-shadow: 0 0 10px rgba(255,107,107,0.2);
@@ -388,11 +330,6 @@
       border-bottom: 1px solid rgba(255,255,255,0.05);
     }
     .checkpoint-item:last-child { border-bottom: none; }
-    .checkpoint-item .bell-icon-sm {
-      width: 18px;
-      height: 18px;
-      opacity: 0.6;
-    }
 
     .cp-remove {
       background: rgba(255,107,107,0.15);
@@ -402,9 +339,7 @@
       cursor: pointer;
       padding: 4px 10px;
       border-radius: 8px;
-      transition: background 0.2s;
     }
-    .cp-remove:hover { background: rgba(255,107,107,0.3); }
 
     .btn-add-cp {
       width: 100%;
@@ -416,100 +351,32 @@
       font-size: 0.85rem;
       cursor: pointer;
       margin-top: 10px;
-      transition: all 0.2s;
     }
-    .btn-add-cp:hover { background: rgba(255,107,107,0.15); }
 
-    /* Presets */
-    .presets {
-      margin-top: 16px;
-    }
-    .presets h2 {
-      font-size: 0.9rem;
-      color: #ff6b6b;
-      margin-bottom: 10px;
-      font-weight: 600;
-    }
-    .preset-list {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .preset-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 14px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 12px;
-      backdrop-filter: blur(10px);
-    }
-    .preset-item .preset-name {
-      flex: 1;
-      font-size: 0.9rem;
-      color: #ccc;
-    }
-    .preset-item .preset-detail {
-      font-size: 0.7rem;
-      color: #666;
-    }
-    .btn-sm {
-      padding: 6px 14px;
+    .cp-warning {
+      color: #f5a623;
       font-size: 0.75rem;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .btn-load {
-      background: rgba(255,255,255,0.1);
-      color: #fff;
-    }
-    .btn-save {
-      background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-      color: #fff;
-    }
-    .btn-del {
-      background: rgba(255,255,255,0.05);
-      color: #ff6b6b;
-    }
-
-    .preset-name-input {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 10px;
-      color: #fff;
-      padding: 8px 10px;
-      font-size: 0.85rem;
-      width: 140px;
+      margin-top: 4px;
+      display: none;
     }
 
     .hidden { display: none !important; }
-
-    /* Bell SVG inline color */
-    .bell-gold { color: #ffd700; }
-    .bell-red { color: #ff6b6b; }
   </style>
 </head>
-<body>
+<body class="bg-default">
   <div class="app">
     <div class="header">
       <h1><span>Meeting</span> Timer</h1>
     </div>
 
-    <!-- Preset Tabs -->
-    <div class="tabs" id="presetTabs"></div>
-
     <!-- View Toggle -->
     <div class="view-toggle">
-      <div class="view-btn active" data-view="timer" onclick="switchView('timer')">Timer</div>
-      <div class="view-btn" data-view="settings" onclick="switchView('settings')">Settings</div>
+      <div class="view-btn active" data-view="timer" onclick="switchView('timer')">タイマー</div>
+      <div class="view-btn" data-view="settings" onclick="switchView('settings')">設定</div>
     </div>
 
     <!-- Timer View -->
     <div id="timerView">
-      <!-- Circular Timer -->
       <div class="circle-timer">
         <svg viewBox="0 0 260 260">
           <defs>
@@ -529,22 +396,19 @@
           <div class="timer-time" id="timerTime">05:00</div>
           <div class="timer-round" id="timerRound"></div>
         </div>
-        <!-- Checkpoint markers will be placed here -->
         <div id="cpMarkers"></div>
       </div>
 
-      <!-- Bell checkpoint cards -->
       <div class="bell-indicators" id="cpIndicators"></div>
 
-      <!-- Controls -->
       <div class="controls">
         <button class="btn btn-reset" onclick="resetTimer()">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
-          Reset
+          リセット
         </button>
         <button class="btn btn-start" id="btnStartPause" onclick="toggleTimer()">
           <svg id="iconPlay" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-right:4px;"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          <span id="btnLabel">Start</span>
+          <span id="btnLabel">スタート</span>
         </button>
       </div>
     </div>
@@ -554,40 +418,32 @@
       <div class="settings-panel">
         <h2>
           <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="#ff6b6b" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-          Timer Settings
+          タイマー設定
         </h2>
         <div class="form-group">
-          <label>Countdown Duration</label>
+          <label>カウントダウン時間</label>
           <div class="form-row">
-            <input type="number" id="setMinutes" min="0" max="99" value="5">
-            <span>min</span>
-            <input type="number" id="setSeconds" min="0" max="59" value="0">
-            <span>sec</span>
+            <input type="tel" id="setMinutes" value="5" maxlength="2" inputmode="numeric" onfocus="this.select()" oninput="onTimerSettingChange()">
+            <span>分</span>
+            <input type="tel" id="setSeconds" value="0" maxlength="2" inputmode="numeric" onfocus="this.select()" oninput="onTimerSettingChange()">
+            <span>秒</span>
           </div>
         </div>
         <div class="form-group">
-          <label>Repeat Rounds</label>
+          <label>繰り返し回数</label>
           <div class="form-row">
-            <input type="number" id="setRepeat" min="1" max="99" value="1">
-            <span>times</span>
+            <input type="tel" id="setRepeat" value="1" maxlength="2" inputmode="numeric" onfocus="this.select()">
+            <span>回</span>
           </div>
         </div>
 
         <h2>
           <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="#ff6b6b" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-          Checkpoints
+          チェックポイント
         </h2>
         <div id="checkpointList" class="checkpoints"></div>
-        <button class="btn-add-cp" onclick="addCheckpoint()">+ Add Checkpoint</button>
-      </div>
-
-      <div class="presets">
-        <h2>Presets (max 5)</h2>
-        <div class="form-row" style="margin-bottom:10px;">
-          <input type="text" class="preset-name-input" id="presetNameInput" placeholder="Preset name">
-          <button class="btn-sm btn-save" onclick="saveCurrentPreset()">Save</button>
-        </div>
-        <div class="preset-list" id="presetList"></div>
+        <div class="cp-warning" id="cpWarning">設定時間を超えています</div>
+        <button class="btn-add-cp" onclick="addCheckpoint()">+ チェックポイント追加</button>
       </div>
     </div>
   </div>
@@ -611,7 +467,7 @@
   </div>
 
   <script>
-    // ---- Bell SVG template ----
+    // ---- Bell SVG ----
     function bellSVG(size = 24, color = '#ffd700') {
       return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" class="bell-icon">
         <path d="M50 12 C50 12 52 16 52 16 C52 16 54 16 54 18 C62 22 68 30 68 42 C68 58 74 64 76 68 L24 68 C26 64 32 58 32 42 C32 30 38 22 46 18 C46 16 48 16 48 16 C48 16 50 12 50 12Z" fill="${color}" opacity="0.9"/>
@@ -621,7 +477,6 @@
         <path d="M36 32 C36 32 42 28 50 28" stroke="rgba(255,255,255,0.4)" stroke-width="3" fill="none" stroke-linecap="round"/>
       </svg>`;
     }
-
     function miniBellSVG(size = 14, color = '#ffd700') {
       return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" class="mini-bell">
         <path d="M50 12 C50 12 52 16 52 16 C54 16 54 18 54 18 C62 22 68 30 68 42 C68 58 74 64 76 68 L24 68 C26 64 32 58 32 42 C32 30 38 22 46 18 C46 16 48 16 48 16 L50 12Z" fill="${color}" opacity="0.85"/>
@@ -631,7 +486,6 @@
     }
 
     // ---- Audio (iOS compatible) ----
-    // Do NOT create AudioContext until user gesture (iOS requirement)
     let audioCtx = null;
     let bell1Buffer = null;
     let bell2Buffer = null;
@@ -639,27 +493,22 @@
     let bell2Raw = null;
     let audioReady = false;
 
-    // Pre-fetch raw audio data (no AudioContext needed)
     fetch('bell1.mp3').then(r => r.arrayBuffer()).then(b => { bell1Raw = b; });
     fetch('bell2.mp3').then(r => r.arrayBuffer()).then(b => { bell2Raw = b; });
 
     async function ensureAudioReady() {
       if (audioReady) return;
-      // Create AudioContext inside user gesture
       if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       }
-      // Resume if suspended
       if (audioCtx.state === 'suspended') {
         await audioCtx.resume();
       }
-      // Play silent buffer to fully unlock iOS audio
       const silentBuf = audioCtx.createBuffer(1, 1, 22050);
       const silentSrc = audioCtx.createBufferSource();
       silentSrc.buffer = silentBuf;
       silentSrc.connect(audioCtx.destination);
       silentSrc.start(0);
-      // Decode audio buffers
       if (bell1Raw && !bell1Buffer) {
         bell1Buffer = await audioCtx.decodeAudioData(bell1Raw.slice(0));
       }
@@ -667,7 +516,6 @@
         bell2Buffer = await audioCtx.decodeAudioData(bell2Raw.slice(0));
       }
       audioReady = true;
-      console.log('Audio ready, ctx state:', audioCtx.state);
     }
 
     function playBuffer(buffer) {
@@ -697,9 +545,37 @@
     function showChimeAnimation() {
       const overlay = document.getElementById('chimeOverlay');
       overlay.classList.remove('show');
-      void overlay.offsetWidth; // force reflow
+      void overlay.offsetWidth;
       overlay.classList.add('show');
       setTimeout(() => overlay.classList.remove('show'), 900);
+    }
+
+    // ---- Background Color (blue -> green -> red) ----
+    function updateBackground(pct) {
+      // pct: 0 = start, 1 = end
+      // 0.0 = blue, 0.5 = green, 1.0 = red
+      let r, g, b;
+      if (pct <= 0.5) {
+        const t = pct / 0.5;
+        r = Math.round(20 + t * 10);
+        g = Math.round(40 + t * 140);
+        b = Math.round(120 - t * 60);
+      } else {
+        const t = (pct - 0.5) / 0.5;
+        r = Math.round(30 + t * 160);
+        g = Math.round(180 - t * 150);
+        b = Math.round(60 - t * 40);
+      }
+      const r2 = Math.round(r * 0.4);
+      const g2 = Math.round(g * 0.4);
+      const b2 = Math.round(b * 0.4);
+      document.body.style.background = `linear-gradient(135deg, rgb(${r2},${g2},${b2}) 0%, rgb(${r},${g},${b}) 50%, rgb(${r2},${g2},${b2}) 100%)`;
+      document.body.classList.remove('bg-default');
+    }
+
+    function resetBackground() {
+      document.body.style.background = '';
+      document.body.classList.add('bg-default');
     }
 
     // ---- State ----
@@ -712,15 +588,57 @@
     let lastTick = 0;
     let checkpoints = [];
     let passedCheckpoints = new Set();
+    const CIRCUMFERENCE = 2 * Math.PI * 115;
 
-    const CIRCUMFERENCE = 2 * Math.PI * 115; // ~722.6
+    // ---- Input Helpers ----
+    function getVal(id) {
+      return parseInt(document.getElementById(id).value) || 0;
+    }
+
+    function getTotalSettingSec() {
+      return getVal('setMinutes') * 60 + getVal('setSeconds');
+    }
+
+    // Called when timer setting changes -> auto-update default checkpoint
+    function onTimerSettingChange() {
+      const totalSec = getTotalSettingSec();
+      const cps = getCheckpointsFromUI();
+      // If no checkpoints or only one default, auto-set to 3/4
+      if (cps.length === 0 || (cps.length === 1 && cps[0]._auto)) {
+        const cpSec = Math.floor(totalSec * 0.75);
+        if (cpSec > 0) {
+          renderCheckpoints([{ elapsedSec: cpSec, chimeCount: 1, _auto: true }]);
+        }
+      }
+      // Validate existing checkpoints
+      validateCheckpoints();
+    }
+
+    function validateCheckpoints() {
+      const totalSec = getTotalSettingSec();
+      const items = document.querySelectorAll('.checkpoint-item');
+      let hasWarning = false;
+      items.forEach(item => {
+        const mins = parseInt(item.querySelector('.cp-min').value) || 0;
+        const secs = parseInt(item.querySelector('.cp-sec').value) || 0;
+        const cpSec = mins * 60 + secs;
+        if (cpSec >= totalSec && totalSec > 0) {
+          hasWarning = true;
+          // Clamp to totalSec - 1
+          const clamped = Math.max(1, totalSec - 1);
+          item.querySelector('.cp-min').value = Math.floor(clamped / 60);
+          item.querySelector('.cp-sec').value = clamped % 60;
+        }
+      });
+      document.getElementById('cpWarning').style.display = hasWarning ? 'block' : 'none';
+    }
 
     // ---- Settings ----
     function getSettings() {
       return {
-        minutes: parseInt(document.getElementById('setMinutes').value) || 0,
-        seconds: parseInt(document.getElementById('setSeconds').value) || 0,
-        repeat: parseInt(document.getElementById('setRepeat').value) || 1,
+        minutes: getVal('setMinutes'),
+        seconds: getVal('setSeconds'),
+        repeat: getVal('setRepeat') || 1,
         checkpoints: getCheckpointsFromUI()
       };
     }
@@ -758,12 +676,12 @@
         div.className = 'checkpoint-item';
         div.innerHTML = `
           ${bellSVG(18, '#ff6b6b')}
-          <input type="number" class="cp-min" min="0" max="99" value="${mins}" style="width:55px">
-          <span>min</span>
-          <input type="number" class="cp-sec" min="0" max="59" value="${secs}" style="width:55px">
-          <span>sec</span>
-          <span style="margin-left:4px;">${bellSVG(14, '#ffd700')}</span>
-          <input type="number" class="cp-chime" min="1" max="10" value="${cp.chimeCount}" style="width:45px">
+          <input type="tel" class="cp-min" maxlength="2" inputmode="numeric" value="${mins}" style="width:55px" onfocus="this.select()" oninput="validateCheckpoints()">
+          <span>分</span>
+          <input type="tel" class="cp-sec" maxlength="2" inputmode="numeric" value="${secs}" style="width:55px" onfocus="this.select()" oninput="validateCheckpoints()">
+          <span>秒</span>
+          <span style="margin-left:2px;">${bellSVG(14, '#ffd700')}</span>
+          <input type="tel" class="cp-chime" maxlength="1" inputmode="numeric" value="${cp.chimeCount}" style="width:40px" onfocus="this.select()">
           <button class="cp-remove" onclick="removeCheckpoint(${i})">x</button>
         `;
         list.appendChild(div);
@@ -771,8 +689,10 @@
     }
 
     function addCheckpoint() {
+      const totalSec = getTotalSettingSec();
       const cps = getCheckpointsFromUI();
-      cps.push({ elapsedSec: 60, chimeCount: 1 });
+      const defaultSec = Math.max(1, Math.floor(totalSec * 0.75));
+      cps.push({ elapsedSec: defaultSec, chimeCount: 1 });
       renderCheckpoints(cps);
     }
 
@@ -856,16 +776,14 @@
       remainingMs = totalMs;
       currentRound = 1;
       passedCheckpoints.clear();
+      resetBackground();
       updateDisplay();
       updateButton();
       renderCpIndicators();
     }
 
     async function toggleTimer() {
-      // Create & unlock AudioContext on this user gesture (iOS requirement)
-      // Must await so audio is fully ready before timer starts
       await ensureAudioReady();
-
       if (timerState === 'running') {
         pauseTimer();
       } else {
@@ -889,11 +807,7 @@
       }
 
       const roundEl = document.getElementById('timerRound');
-      if (totalRounds > 1) {
-        roundEl.textContent = `Round ${currentRound} / ${totalRounds}`;
-      } else {
-        roundEl.textContent = '';
-      }
+      roundEl.textContent = totalRounds > 1 ? `ラウンド ${currentRound} / ${totalRounds}` : '';
 
       // Circular progress
       if (totalMs > 0) {
@@ -901,9 +815,13 @@
         const offset = CIRCUMFERENCE * (1 - pct);
         document.getElementById('circleProgress').setAttribute('stroke-dashoffset', offset);
         document.getElementById('circleGlow').setAttribute('stroke-dashoffset', offset);
+
+        // Background color change (blue -> green -> red)
+        if (timerState === 'running') {
+          updateBackground(1 - pct);
+        }
       }
 
-      // Update checkpoint markers
       updateCpMarkers();
     }
 
@@ -912,11 +830,11 @@
       const label = document.getElementById('btnLabel');
       const icon = document.getElementById('iconPlay');
       if (timerState === 'running') {
-        label.textContent = 'Pause';
+        label.textContent = '一時停止';
         icon.innerHTML = '<rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>';
         btn.className = 'btn btn-pause';
       } else {
-        label.textContent = timerState === 'paused' ? 'Resume' : 'Start';
+        label.textContent = timerState === 'paused' ? '再開' : 'スタート';
         icon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
         btn.className = 'btn btn-start';
       }
@@ -929,16 +847,12 @@
       checkpoints.forEach((cp, i) => {
         const m = Math.floor(cp.elapsedSec / 60);
         const s = cp.elapsedSec % 60;
-        const label = m > 0 ? `${m}:${String(s).padStart(2,'0')}` : `${s}s`;
+        const label = m > 0 ? `${m}:${String(s).padStart(2,'0')}` : `${s}秒`;
         const card = document.createElement('div');
         card.className = 'bell-card';
         card.id = `cp-card-${i}`;
-
         let bellIcons = '';
-        for (let b = 0; b < cp.chimeCount; b++) {
-          bellIcons += miniBellSVG(14, '#ffd700');
-        }
-
+        for (let b = 0; b < cp.chimeCount; b++) bellIcons += miniBellSVG(14, '#ffd700');
         card.innerHTML = `
           ${bellSVG(20, '#ffd700')}
           <span class="bell-label">${label}</span>
@@ -964,7 +878,6 @@
       if (!container) return;
       container.innerHTML = '';
       if (totalMs <= 0) return;
-
       const cx = 130, cy = 130, r = 115;
       checkpoints.forEach((cp, i) => {
         const pct = (cp.elapsedSec * 1000) / totalMs;
@@ -980,102 +893,6 @@
         marker.style.top = `${(y / 260) * 100}%`;
         container.appendChild(marker);
       });
-    }
-
-    // ---- Presets ----
-    const MAX_PRESETS = 5;
-
-    function loadPresets() {
-      try { return JSON.parse(localStorage.getItem('meetingTimerPresets') || '[]'); }
-      catch { return []; }
-    }
-
-    function savePresets(presets) {
-      localStorage.setItem('meetingTimerPresets', JSON.stringify(presets));
-    }
-
-    function renderPresets() {
-      const presets = loadPresets();
-      const list = document.getElementById('presetList');
-      list.innerHTML = '';
-
-      if (presets.length === 0) {
-        list.innerHTML = '<div style="color:#444;font-size:0.85rem;padding:8px;text-align:center;">No saved presets</div>';
-        return;
-      }
-
-      presets.forEach((p, i) => {
-        const totalSec = p.minutes * 60 + p.seconds;
-        const m = Math.floor(totalSec / 60);
-        const s = totalSec % 60;
-        const div = document.createElement('div');
-        div.className = 'preset-item';
-        div.innerHTML = `
-          <span class="preset-name">${escapeHtml(p.name || `Preset ${i+1}`)}</span>
-          <span class="preset-detail">${m}:${String(s).padStart(2,'0')} x${p.repeat} ${bellSVG(12, '#ffd700')}${(p.checkpoints||[]).length}</span>
-          <button class="btn-sm btn-load" onclick="loadPreset(${i})">Load</button>
-          <button class="btn-sm btn-del" onclick="deletePreset(${i})">Del</button>
-        `;
-        list.appendChild(div);
-      });
-
-      renderPresetTabs(presets);
-    }
-
-    function renderPresetTabs(presets) {
-      const tabs = document.getElementById('presetTabs');
-      tabs.innerHTML = '';
-      presets.forEach((p, i) => {
-        const tab = document.createElement('div');
-        tab.className = 'tab';
-        tab.textContent = p.name || `P${i+1}`;
-        tab.onclick = () => loadPreset(i);
-        tabs.appendChild(tab);
-      });
-    }
-
-    function saveCurrentPreset() {
-      const presets = loadPresets();
-      if (presets.length >= MAX_PRESETS) {
-        alert(`Max ${MAX_PRESETS} presets allowed.`);
-        return;
-      }
-      const name = document.getElementById('presetNameInput').value.trim() || `Preset ${presets.length + 1}`;
-      const s = getSettings();
-      presets.push({ name, ...s });
-      savePresets(presets);
-      document.getElementById('presetNameInput').value = '';
-      renderPresets();
-    }
-
-    function loadPreset(idx) {
-      const presets = loadPresets();
-      if (presets[idx]) {
-        resetTimer();
-        applySettings(presets[idx]);
-        const s = presets[idx];
-        totalMs = (s.minutes * 60 + s.seconds) * 1000;
-        remainingMs = totalMs;
-        totalRounds = s.repeat;
-        checkpoints = s.checkpoints || [];
-        currentRound = 1;
-        passedCheckpoints.clear();
-        updateDisplay();
-        renderCpIndicators();
-
-        document.querySelectorAll('.tab').forEach((t, i) => {
-          t.className = i === idx ? 'tab active' : 'tab';
-        });
-
-        switchView('timer');
-      }
-    }
-
-    function deletePreset(idx) {
-      const presets = loadPresets();
-      presets.splice(idx, 1);
-      savePresets(presets);
-      renderPresets();
     }
 
     function escapeHtml(str) {
@@ -1095,8 +912,10 @@
 
     // ---- Init ----
     function init() {
-      renderCheckpoints([]);
-      renderPresets();
+      // Set default checkpoint at 3/4 of timer
+      const totalSec = getTotalSettingSec();
+      const cpSec = Math.floor(totalSec * 0.75);
+      renderCheckpoints(cpSec > 0 ? [{ elapsedSec: cpSec, chimeCount: 1 }] : []);
       const s = getSettings();
       totalMs = (s.minutes * 60 + s.seconds) * 1000;
       remainingMs = totalMs;
@@ -1105,7 +924,6 @@
 
     init();
 
-    // Also unlock audio on any user touch/click (iOS requirement)
     ['touchstart', 'click'].forEach(evt => {
       document.addEventListener(evt, () => ensureAudioReady(), { once: true });
     });
