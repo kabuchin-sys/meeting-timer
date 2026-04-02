@@ -630,31 +630,80 @@
       </svg>`;
     }
 
-    // ---- Audio ----
-    const bellAudio = new Audio('bell1.mp3');
-    bellAudio.preload = 'auto';
-    bellAudio.load();
-    const bell2Audio = new Audio('bell2.mp3');
-    bell2Audio.preload = 'auto';
-    bell2Audio.load();
+    // ---- Audio (Web Audio API for iOS compatibility) ----
+    let audioCtx = null;
+    let bell1Buffer = null;
+    let bell2Buffer = null;
+    let audioUnlocked = false;
+
+    function getAudioCtx() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      return audioCtx;
+    }
+
+    async function loadAudioBuffer(url) {
+      const response = await fetch(url);
+      const arrayBuffer = await response.arrayBuffer();
+      return await getAudioCtx().decodeAudioData(arrayBuffer);
+    }
+
+    async function initAudio() {
+      try {
+        bell1Buffer = await loadAudioBuffer('bell1.mp3');
+        bell2Buffer = await loadAudioBuffer('bell2.mp3');
+        console.log('Audio buffers loaded');
+      } catch (e) {
+        console.log('Audio load error:', e);
+      }
+    }
+
+    function unlockAudio() {
+      if (audioUnlocked) return;
+      const ctx = getAudioCtx();
+      if (ctx.state === 'suspended') {
+        ctx.resume();
+      }
+      // Play silent buffer to unlock
+      const buf = ctx.createBuffer(1, 1, 22050);
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      src.connect(ctx.destination);
+      src.start(0);
+      audioUnlocked = true;
+      console.log('Audio unlocked');
+    }
+
+    function playBuffer(buffer) {
+      if (!buffer) return;
+      const ctx = getAudioCtx();
+      if (ctx.state === 'suspended') ctx.resume();
+      const source = ctx.createBufferSource();
+      const gain = ctx.createGain();
+      source.buffer = buffer;
+      gain.gain.value = 1.0;
+      source.connect(gain);
+      gain.connect(ctx.destination);
+      source.start(0);
+    }
 
     function playChime(count = 1) {
       showChimeAnimation();
       for (let i = 0; i < count; i++) {
         setTimeout(() => {
-          const snd = bellAudio.cloneNode();
-          snd.volume = 1.0;
-          snd.play().catch(err => console.log('Audio play failed:', err));
+          playBuffer(bell1Buffer);
         }, i * 1500);
       }
     }
 
     function playEndChime() {
       showChimeAnimation();
-      const snd = bell2Audio.cloneNode();
-      snd.volume = 1.0;
-      snd.play().catch(err => console.log('Audio play failed:', err));
+      playBuffer(bell2Buffer);
     }
+
+    // Load audio buffers on page load
+    initAudio();
 
     function showChimeAnimation() {
       const overlay = document.getElementById('chimeOverlay');
@@ -824,12 +873,8 @@
     }
 
     function toggleTimer() {
-      bellAudio.volume = 0;
-      bellAudio.play().then(() => {
-        bellAudio.pause();
-        bellAudio.currentTime = 0;
-        bellAudio.volume = 1.0;
-      }).catch(() => {});
+      // Unlock audio on first user gesture (required for iOS)
+      unlockAudio();
 
       if (timerState === 'running') {
         pauseTimer();
@@ -1069,6 +1114,11 @@
     }
 
     init();
+
+    // Unlock audio on any user touch/click (iOS requirement)
+    ['touchstart', 'click'].forEach(evt => {
+      document.addEventListener(evt, unlockAudio, { once: true });
+    });
 
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').catch(() => {});
