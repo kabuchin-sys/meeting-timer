@@ -133,10 +133,10 @@
     }
 
     .timer-round {
-      font-size: 0.85rem;
+      font-size: 1.3rem;
       color: #ff6b6b;
-      margin-top: 4px;
-      font-weight: 500;
+      margin-top: 8px;
+      font-weight: 600;
     }
 
     /* Checkpoint markers on circle */
@@ -882,7 +882,9 @@
       checkpoints.forEach((cp, i) => {
         const pct = (cp.elapsedSec * 1000) / totalMs;
         if (pct > 1) return;
-        const angle = -Math.PI/2 + 2 * Math.PI * pct;
+        // Ring shrinks counter-clockwise from 12 o'clock
+        // Marker at elapsed pct goes counter-clockwise from 12
+        const angle = -Math.PI/2 - 2 * Math.PI * pct;
         const x = cx + r * Math.cos(angle);
         const y = cy + r * Math.sin(angle);
         const marker = document.createElement('div');
