@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#1a1a2e">
+  <meta name="theme-color" content="#0a0a1a">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
   <title>Meeting Timer</title>
@@ -14,7 +14,7 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #1a1a2e;
+      background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3e 50%, #0a0a1a 100%);
       color: #eee;
       min-height: 100vh;
       min-height: 100dvh;
@@ -24,111 +24,259 @@
     .app {
       max-width: 480px;
       margin: 0 auto;
-      padding: 16px;
+      padding: 12px 16px;
       min-height: 100vh;
       min-height: 100dvh;
     }
 
-    h1 {
+    /* Header */
+    .header {
       text-align: center;
-      font-size: 1.3rem;
-      padding: 12px 0;
-      color: #e94560;
-      letter-spacing: 2px;
+      padding: 8px 0 4px;
+    }
+    .header h1 {
+      font-size: 1.1rem;
+      color: #fff;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      font-weight: 300;
+    }
+    .header h1 span {
+      color: #ff6b6b;
+      font-weight: 700;
     }
 
-    /* Tabs */
+    /* Preset Tabs */
     .tabs {
       display: flex;
-      gap: 4px;
-      margin-bottom: 16px;
+      gap: 6px;
+      margin: 8px 0;
+      overflow-x: auto;
+      scrollbar-width: none;
     }
+    .tabs::-webkit-scrollbar { display: none; }
     .tab {
+      flex-shrink: 0;
+      padding: 8px 16px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      color: #888;
+      font-size: 0.8rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      backdrop-filter: blur(10px);
+    }
+    .tab.active {
+      background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 4px 15px rgba(255,107,107,0.3);
+    }
+
+    /* View Toggle */
+    .view-toggle {
+      display: flex;
+      gap: 2px;
+      margin: 8px 0;
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 3px;
+    }
+    .view-btn {
       flex: 1;
-      padding: 10px 4px;
-      background: #16213e;
-      border: 2px solid #0f3460;
-      border-radius: 8px;
-      color: #aaa;
+      padding: 8px;
+      background: transparent;
+      border: none;
+      border-radius: 10px;
+      color: #888;
       font-size: 0.85rem;
       text-align: center;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.3s;
     }
-    .tab.active {
-      background: #0f3460;
+    .view-btn.active {
+      background: rgba(255,255,255,0.1);
       color: #fff;
-      border-color: #e94560;
     }
 
-    /* Timer Display */
-    .timer-display {
+    /* ===== TIMER VIEW ===== */
+
+    /* Circular Timer */
+    .circle-timer {
+      position: relative;
+      width: 260px;
+      height: 260px;
+      margin: 16px auto;
+    }
+    .circle-timer svg {
+      transform: rotate(-90deg);
+      width: 100%;
+      height: 100%;
+    }
+    .circle-bg {
+      fill: none;
+      stroke: rgba(255,255,255,0.06);
+      stroke-width: 8;
+    }
+    .circle-progress {
+      fill: none;
+      stroke: url(#timerGradient);
+      stroke-width: 8;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.1s linear;
+    }
+    .circle-glow {
+      fill: none;
+      stroke: url(#timerGradient);
+      stroke-width: 12;
+      stroke-linecap: round;
+      opacity: 0.2;
+      filter: blur(6px);
+      transition: stroke-dashoffset 0.1s linear;
+    }
+
+    .timer-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       text-align: center;
-      padding: 24px 0;
     }
     .timer-time {
-      font-size: 4.5rem;
-      font-weight: 700;
+      font-size: 3.8rem;
+      font-weight: 200;
       font-variant-numeric: tabular-nums;
       color: #fff;
       letter-spacing: 2px;
+      line-height: 1;
     }
     .timer-time.warning { color: #f5a623; }
-    .timer-time.danger { color: #e94560; animation: pulse 1s infinite; }
+    .timer-time.danger { color: #ff6b6b; animation: pulse 1s infinite; }
 
     @keyframes pulse {
       0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
+      50% { opacity: 0.4; }
     }
 
-    .timer-info {
-      margin-top: 8px;
-      font-size: 0.9rem;
-      color: #888;
-    }
     .timer-round {
-      font-size: 1.1rem;
-      color: #e94560;
+      font-size: 0.85rem;
+      color: #ff6b6b;
       margin-top: 4px;
+      font-weight: 500;
     }
 
-    /* Progress Bar */
-    .progress-bar {
-      width: 100%;
-      height: 6px;
-      background: #16213e;
-      border-radius: 3px;
-      margin: 12px 0;
-      overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #e94560, #f5a623);
-      border-radius: 3px;
-      transition: width 0.3s;
-    }
-
-    /* Checkpoint indicators */
-    .checkpoint-indicators {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      justify-content: center;
-      margin: 8px 0 16px;
-    }
-    .cp-dot {
-      padding: 4px 10px;
-      background: #16213e;
-      border: 1px solid #0f3460;
-      border-radius: 12px;
-      font-size: 0.75rem;
-      color: #888;
+    /* Checkpoint markers on circle */
+    .cp-marker {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      border: 2px solid rgba(255,255,255,0.3);
+      transform: translate(-50%, -50%);
       transition: all 0.3s;
     }
-    .cp-dot.passed {
-      background: #e94560;
-      border-color: #e94560;
-      color: #fff;
+    .cp-marker.passed {
+      background: #ff6b6b;
+      border-color: #ff6b6b;
+      box-shadow: 0 0 10px rgba(255,107,107,0.6);
+    }
+
+    /* Bell Indicators */
+    .bell-indicators {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin: 4px 0 12px;
+      min-height: 40px;
+    }
+    .bell-card {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      transition: all 0.3s;
+      backdrop-filter: blur(10px);
+    }
+    .bell-card.passed {
+      background: rgba(255,107,107,0.15);
+      border-color: rgba(255,107,107,0.4);
+      box-shadow: 0 0 15px rgba(255,107,107,0.15);
+    }
+    .bell-card .bell-icon {
+      width: 20px;
+      height: 20px;
+      opacity: 0.4;
+      transition: all 0.3s;
+    }
+    .bell-card.passed .bell-icon {
+      opacity: 1;
+      animation: bellRing 0.5s ease-in-out;
+    }
+    .bell-card .bell-label {
+      font-size: 0.75rem;
+      color: #888;
+    }
+    .bell-card.passed .bell-label {
+      color: #ff6b6b;
+    }
+    .bell-card .bell-count {
+      display: flex;
+      gap: 2px;
+    }
+    .bell-card .bell-count .mini-bell {
+      width: 12px;
+      height: 12px;
+      opacity: 0.3;
+    }
+    .bell-card.passed .bell-count .mini-bell {
+      opacity: 1;
+    }
+
+    @keyframes bellRing {
+      0% { transform: rotate(0deg); }
+      20% { transform: rotate(15deg); }
+      40% { transform: rotate(-15deg); }
+      60% { transform: rotate(10deg); }
+      80% { transform: rotate(-10deg); }
+      100% { transform: rotate(0deg); }
+    }
+
+    /* Chime animation overlay */
+    .chime-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 100;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .chime-overlay.show {
+      opacity: 1;
+    }
+    .chime-bell-big {
+      width: 120px;
+      height: 120px;
+      animation: bellSwing 0.8s ease-in-out;
+      filter: drop-shadow(0 0 30px rgba(255,215,0,0.6));
+    }
+
+    @keyframes bellSwing {
+      0% { transform: rotate(0deg) scale(0.5); opacity: 0; }
+      20% { transform: rotate(20deg) scale(1.1); opacity: 1; }
+      40% { transform: rotate(-20deg) scale(1); }
+      60% { transform: rotate(15deg); }
+      80% { transform: rotate(-10deg); }
+      100% { transform: rotate(0deg); opacity: 0; }
     }
 
     /* Controls */
@@ -136,57 +284,71 @@
       display: flex;
       gap: 12px;
       justify-content: center;
-      margin: 16px 0;
+      margin: 12px 0;
     }
     .btn {
-      padding: 14px 28px;
+      padding: 14px 32px;
       border: none;
-      border-radius: 12px;
-      font-size: 1.1rem;
+      border-radius: 16px;
+      font-size: 1rem;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
     }
     .btn:active { transform: scale(0.95); }
     .btn-start {
-      background: #e94560;
+      background: linear-gradient(135deg, #ff6b6b, #ee5a24);
       color: #fff;
       flex: 1;
       max-width: 200px;
+      box-shadow: 0 6px 20px rgba(255,107,107,0.3);
     }
     .btn-pause {
-      background: #f5a623;
-      color: #1a1a2e;
+      background: linear-gradient(135deg, #f5a623, #f78c1f);
+      color: #fff;
       flex: 1;
       max-width: 200px;
+      box-shadow: 0 6px 20px rgba(245,166,35,0.3);
     }
     .btn-reset {
-      background: #16213e;
+      background: rgba(255,255,255,0.08);
       color: #aaa;
-      border: 2px solid #0f3460;
+      border: 1px solid rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
     }
 
-    /* Settings Panel */
+    /* ===== SETTINGS VIEW ===== */
     .settings-panel {
-      background: #16213e;
-      border-radius: 12px;
-      padding: 16px;
-      margin-top: 12px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 20px;
+      margin-top: 8px;
+      backdrop-filter: blur(10px);
     }
     .settings-panel h2 {
-      font-size: 1rem;
-      color: #e94560;
-      margin-bottom: 12px;
+      font-size: 0.9rem;
+      color: #ff6b6b;
+      margin-bottom: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .settings-panel h2 .icon-sm {
+      width: 18px;
+      height: 18px;
     }
 
     .form-group {
-      margin-bottom: 14px;
+      margin-bottom: 16px;
     }
     .form-group label {
       display: block;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       color: #aaa;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
+      font-weight: 500;
     }
     .form-row {
       display: flex;
@@ -194,68 +356,79 @@
       align-items: center;
     }
     .form-row span {
-      color: #888;
-      font-size: 0.9rem;
+      color: #666;
+      font-size: 0.85rem;
     }
 
     input[type="number"], select {
-      background: #1a1a2e;
-      border: 2px solid #0f3460;
-      border-radius: 8px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
       color: #fff;
       padding: 10px 12px;
       font-size: 1rem;
       width: 80px;
       text-align: center;
       -webkit-appearance: none;
+      transition: border-color 0.3s;
     }
     input[type="number"]:focus, select:focus {
       outline: none;
-      border-color: #e94560;
+      border-color: #ff6b6b;
+      box-shadow: 0 0 10px rgba(255,107,107,0.2);
     }
 
     /* Checkpoints */
-    .checkpoints {
-      margin-top: 12px;
-    }
+    .checkpoints { margin-top: 10px; }
     .checkpoint-item {
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 8px 0;
-      border-bottom: 1px solid #0f3460;
+      gap: 6px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
     }
     .checkpoint-item:last-child { border-bottom: none; }
+    .checkpoint-item .bell-icon-sm {
+      width: 18px;
+      height: 18px;
+      opacity: 0.6;
+    }
 
     .cp-remove {
-      background: none;
+      background: rgba(255,107,107,0.15);
       border: none;
-      color: #e94560;
-      font-size: 1.2rem;
+      color: #ff6b6b;
+      font-size: 1rem;
       cursor: pointer;
-      padding: 4px 8px;
+      padding: 4px 10px;
+      border-radius: 8px;
+      transition: background 0.2s;
     }
+    .cp-remove:hover { background: rgba(255,107,107,0.3); }
 
     .btn-add-cp {
       width: 100%;
-      padding: 10px;
-      background: #0f3460;
-      border: 2px dashed #e94560;
-      border-radius: 8px;
-      color: #e94560;
-      font-size: 0.9rem;
+      padding: 12px;
+      background: rgba(255,107,107,0.08);
+      border: 1px dashed rgba(255,107,107,0.3);
+      border-radius: 12px;
+      color: #ff6b6b;
+      font-size: 0.85rem;
       cursor: pointer;
-      margin-top: 8px;
+      margin-top: 10px;
+      transition: all 0.2s;
     }
+    .btn-add-cp:hover { background: rgba(255,107,107,0.15); }
 
-    /* Preset Buttons */
+    /* Presets */
     .presets {
       margin-top: 16px;
     }
     .presets h2 {
-      font-size: 1rem;
-      color: #e94560;
-      margin-bottom: 8px;
+      font-size: 0.9rem;
+      color: #ff6b6b;
+      margin-bottom: 10px;
+      font-weight: 600;
     }
     .preset-list {
       display: flex;
@@ -266,10 +439,11 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 10px 12px;
-      background: #1a1a2e;
-      border: 1px solid #0f3460;
-      border-radius: 8px;
+      padding: 12px 14px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
     }
     .preset-item .preset-name {
       flex: 1;
@@ -277,124 +451,185 @@
       color: #ccc;
     }
     .preset-item .preset-detail {
-      font-size: 0.75rem;
-      color: #888;
+      font-size: 0.7rem;
+      color: #666;
     }
     .btn-sm {
-      padding: 6px 12px;
+      padding: 6px 14px;
       font-size: 0.75rem;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
+      transition: all 0.2s;
     }
-    .btn-load { background: #0f3460; color: #fff; }
-    .btn-save { background: #e94560; color: #fff; }
-    .btn-del { background: #333; color: #e94560; }
+    .btn-load {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+    .btn-save {
+      background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+      color: #fff;
+    }
+    .btn-del {
+      background: rgba(255,255,255,0.05);
+      color: #ff6b6b;
+    }
 
     .preset-name-input {
-      background: #1a1a2e;
-      border: 1px solid #0f3460;
-      border-radius: 6px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
       color: #fff;
-      padding: 6px 8px;
+      padding: 8px 10px;
       font-size: 0.85rem;
-      width: 120px;
-    }
-
-    /* View toggle */
-    .view-toggle {
-      display: flex;
-      gap: 4px;
-      margin-bottom: 12px;
-    }
-    .view-btn {
-      flex: 1;
-      padding: 8px;
-      background: #16213e;
-      border: 1px solid #0f3460;
-      border-radius: 8px;
-      color: #888;
-      font-size: 0.85rem;
-      text-align: center;
-      cursor: pointer;
-    }
-    .view-btn.active {
-      background: #0f3460;
-      color: #fff;
-      border-color: #e94560;
+      width: 140px;
     }
 
     .hidden { display: none !important; }
+
+    /* Bell SVG inline color */
+    .bell-gold { color: #ffd700; }
+    .bell-red { color: #ff6b6b; }
   </style>
 </head>
 <body>
   <div class="app">
-    <h1>Meeting Timer</h1>
+    <div class="header">
+      <h1><span>Meeting</span> Timer</h1>
+    </div>
 
     <!-- Preset Tabs -->
     <div class="tabs" id="presetTabs"></div>
 
     <!-- View Toggle -->
     <div class="view-toggle">
-      <div class="view-btn active" data-view="timer" onclick="switchView('timer')">タイマー</div>
-      <div class="view-btn" data-view="settings" onclick="switchView('settings')">設定</div>
+      <div class="view-btn active" data-view="timer" onclick="switchView('timer')">Timer</div>
+      <div class="view-btn" data-view="settings" onclick="switchView('settings')">Settings</div>
     </div>
 
     <!-- Timer View -->
     <div id="timerView">
-      <div class="timer-display">
-        <div class="timer-time" id="timerTime">00:00</div>
-        <div class="timer-round" id="timerRound"></div>
-        <div class="timer-info" id="timerInfo"></div>
+      <!-- Circular Timer -->
+      <div class="circle-timer">
+        <svg viewBox="0 0 260 260">
+          <defs>
+            <linearGradient id="timerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#ff6b6b"/>
+              <stop offset="50%" style="stop-color:#ee5a24"/>
+              <stop offset="100%" style="stop-color:#f5a623"/>
+            </linearGradient>
+          </defs>
+          <circle class="circle-bg" cx="130" cy="130" r="115"/>
+          <circle class="circle-glow" id="circleGlow" cx="130" cy="130" r="115"
+                  stroke-dasharray="722.6" stroke-dashoffset="0"/>
+          <circle class="circle-progress" id="circleProgress" cx="130" cy="130" r="115"
+                  stroke-dasharray="722.6" stroke-dashoffset="0"/>
+        </svg>
+        <div class="timer-center">
+          <div class="timer-time" id="timerTime">05:00</div>
+          <div class="timer-round" id="timerRound"></div>
+        </div>
+        <!-- Checkpoint markers will be placed here -->
+        <div id="cpMarkers"></div>
       </div>
-      <div class="progress-bar">
-        <div class="progress-fill" id="progressFill" style="width:0%"></div>
-      </div>
-      <div class="checkpoint-indicators" id="cpIndicators"></div>
+
+      <!-- Bell checkpoint cards -->
+      <div class="bell-indicators" id="cpIndicators"></div>
+
+      <!-- Controls -->
       <div class="controls">
-        <button class="btn btn-reset" onclick="resetTimer()">リセット</button>
-        <button class="btn btn-start" id="btnStartPause" onclick="toggleTimer()">スタート</button>
+        <button class="btn btn-reset" onclick="resetTimer()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+          Reset
+        </button>
+        <button class="btn btn-start" id="btnStartPause" onclick="toggleTimer()">
+          <svg id="iconPlay" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-right:4px;"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          <span id="btnLabel">Start</span>
+        </button>
       </div>
     </div>
 
     <!-- Settings View -->
     <div id="settingsView" class="hidden">
       <div class="settings-panel">
-        <h2>タイマー設定</h2>
+        <h2>
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="#ff6b6b" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          Timer Settings
+        </h2>
         <div class="form-group">
-          <label>カウントダウン時間</label>
+          <label>Countdown Duration</label>
           <div class="form-row">
             <input type="number" id="setMinutes" min="0" max="99" value="5">
-            <span>分</span>
+            <span>min</span>
             <input type="number" id="setSeconds" min="0" max="59" value="0">
-            <span>秒</span>
+            <span>sec</span>
           </div>
         </div>
         <div class="form-group">
-          <label>繰り返し回数</label>
+          <label>Repeat Rounds</label>
           <div class="form-row">
             <input type="number" id="setRepeat" min="1" max="99" value="1">
-            <span>回</span>
+            <span>times</span>
           </div>
         </div>
 
-        <h2>チェックポイント (経過時間で指定)</h2>
+        <h2>
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="#ff6b6b" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          Checkpoints
+        </h2>
         <div id="checkpointList" class="checkpoints"></div>
-        <button class="btn-add-cp" onclick="addCheckpoint()">+ チェックポイント追加</button>
+        <button class="btn-add-cp" onclick="addCheckpoint()">+ Add Checkpoint</button>
       </div>
 
       <div class="presets">
-        <h2>プリセット保存</h2>
-        <div class="form-row" style="margin-bottom:8px;">
-          <input type="text" class="preset-name-input" id="presetNameInput" placeholder="プリセット名">
-          <button class="btn-sm btn-save" onclick="saveCurrentPreset()">現在の設定を保存</button>
+        <h2>Presets (max 5)</h2>
+        <div class="form-row" style="margin-bottom:10px;">
+          <input type="text" class="preset-name-input" id="presetNameInput" placeholder="Preset name">
+          <button class="btn-sm btn-save" onclick="saveCurrentPreset()">Save</button>
         </div>
         <div class="preset-list" id="presetList"></div>
       </div>
     </div>
   </div>
 
+  <!-- Chime animation overlay -->
+  <div class="chime-overlay" id="chimeOverlay">
+    <svg class="chime-bell-big" viewBox="0 0 100 100">
+      <defs>
+        <linearGradient id="bellGold" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#ffd700"/>
+          <stop offset="50%" style="stop-color:#ffb700"/>
+          <stop offset="100%" style="stop-color:#ff9500"/>
+        </linearGradient>
+      </defs>
+      <path d="M50 8 C50 8 52 12 52 12 C52 12 54 12 54 14 C62 18 68 28 68 40 C68 58 74 64 76 68 L24 68 C26 64 32 58 32 40 C32 28 38 18 46 14 C46 12 48 12 48 12 C48 12 50 8 50 8Z" fill="url(#bellGold)" stroke="#daa520" stroke-width="1"/>
+      <ellipse cx="50" cy="68" rx="28" ry="4" fill="url(#bellGold)" stroke="#daa520" stroke-width="1"/>
+      <circle cx="50" cy="78" r="5" fill="url(#bellGold)" stroke="#daa520" stroke-width="1"/>
+      <ellipse cx="50" cy="10" rx="4" ry="3" fill="#daa520"/>
+      <path d="M36 30 C36 30 42 26 50 26" stroke="rgba(255,255,255,0.4)" stroke-width="2" fill="none" stroke-linecap="round"/>
+    </svg>
+  </div>
+
   <script>
+    // ---- Bell SVG template ----
+    function bellSVG(size = 24, color = '#ffd700') {
+      return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" class="bell-icon">
+        <path d="M50 12 C50 12 52 16 52 16 C52 16 54 16 54 18 C62 22 68 30 68 42 C68 58 74 64 76 68 L24 68 C26 64 32 58 32 42 C32 30 38 22 46 18 C46 16 48 16 48 16 C48 16 50 12 50 12Z" fill="${color}" opacity="0.9"/>
+        <ellipse cx="50" cy="68" rx="28" ry="4" fill="${color}" opacity="0.9"/>
+        <circle cx="50" cy="78" r="5" fill="${color}" opacity="0.9"/>
+        <ellipse cx="50" cy="14" rx="4" ry="3" fill="${color}" opacity="0.7"/>
+        <path d="M36 32 C36 32 42 28 50 28" stroke="rgba(255,255,255,0.4)" stroke-width="3" fill="none" stroke-linecap="round"/>
+      </svg>`;
+    }
+
+    function miniBellSVG(size = 14, color = '#ffd700') {
+      return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" class="mini-bell">
+        <path d="M50 12 C50 12 52 16 52 16 C54 16 54 18 54 18 C62 22 68 30 68 42 C68 58 74 64 76 68 L24 68 C26 64 32 58 32 42 C32 30 38 22 46 18 C46 16 48 16 48 16 L50 12Z" fill="${color}" opacity="0.85"/>
+        <ellipse cx="50" cy="68" rx="28" ry="4" fill="${color}" opacity="0.85"/>
+        <circle cx="50" cy="78" r="5" fill="${color}" opacity="0.85"/>
+      </svg>`;
+    }
+
     // ---- Audio ----
     const bellAudio = new Audio('bell1.mp3');
     bellAudio.preload = 'auto';
@@ -404,6 +639,7 @@
     bell2Audio.load();
 
     function playChime(count = 1) {
+      showChimeAnimation();
       for (let i = 0; i < count; i++) {
         setTimeout(() => {
           const snd = bellAudio.cloneNode();
@@ -414,21 +650,32 @@
     }
 
     function playEndChime() {
+      showChimeAnimation();
       const snd = bell2Audio.cloneNode();
       snd.volume = 1.0;
       snd.play().catch(err => console.log('Audio play failed:', err));
     }
 
+    function showChimeAnimation() {
+      const overlay = document.getElementById('chimeOverlay');
+      overlay.classList.remove('show');
+      void overlay.offsetWidth; // force reflow
+      overlay.classList.add('show');
+      setTimeout(() => overlay.classList.remove('show'), 900);
+    }
+
     // ---- State ----
-    let timerState = 'stopped'; // stopped, running, paused
+    let timerState = 'stopped';
     let remainingMs = 0;
     let totalMs = 0;
     let currentRound = 1;
     let totalRounds = 1;
     let intervalId = null;
     let lastTick = 0;
-    let checkpoints = []; // { elapsedSec, chimeCount }
+    let checkpoints = [];
     let passedCheckpoints = new Set();
+
+    const CIRCUMFERENCE = 2 * Math.PI * 115; // ~722.6
 
     // ---- Settings ----
     function getSettings() {
@@ -472,15 +719,14 @@
         const div = document.createElement('div');
         div.className = 'checkpoint-item';
         div.innerHTML = `
-          <span style="color:#aaa;font-size:0.8rem;width:20px;">${i + 1}.</span>
-          <input type="number" class="cp-min" min="0" max="99" value="${mins}" style="width:60px">
-          <span>分</span>
-          <input type="number" class="cp-sec" min="0" max="59" value="${secs}" style="width:60px">
-          <span>秒</span>
-          <span style="margin-left:8px;">鳴</span>
-          <input type="number" class="cp-chime" min="1" max="10" value="${cp.chimeCount}" style="width:50px">
-          <span>回</span>
-          <button class="cp-remove" onclick="removeCheckpoint(${i})">×</button>
+          ${bellSVG(18, '#ff6b6b')}
+          <input type="number" class="cp-min" min="0" max="99" value="${mins}" style="width:55px">
+          <span>min</span>
+          <input type="number" class="cp-sec" min="0" max="59" value="${secs}" style="width:55px">
+          <span>sec</span>
+          <span style="margin-left:4px;">${bellSVG(14, '#ffd700')}</span>
+          <input type="number" class="cp-chime" min="1" max="10" value="${cp.chimeCount}" style="width:45px">
+          <button class="cp-remove" onclick="removeCheckpoint(${i})">x</button>
         `;
         list.appendChild(div);
       });
@@ -525,7 +771,6 @@
         lastTick = now;
         remainingMs -= delta;
 
-        // Check checkpoints
         const elapsedMs = totalMs - remainingMs;
         const elapsedSec = Math.floor(elapsedMs / 1000);
         checkpoints.forEach((cp, i) => {
@@ -540,8 +785,6 @@
         if (remainingMs <= 0) {
           remainingMs = 0;
           updateDisplay();
-
-          // End of round chime
           playEndChime();
 
           if (currentRound < totalRounds) {
@@ -581,7 +824,6 @@
     }
 
     function toggleTimer() {
-      // Unlock audio on user gesture
       bellAudio.volume = 0;
       bellAudio.play().then(() => {
         bellAudio.pause();
@@ -605,62 +847,103 @@
       const el = document.getElementById('timerTime');
       el.textContent = timeStr;
 
-      // Color warnings
       el.className = 'timer-time';
       if (timerState === 'running') {
         if (totalSec <= 10) el.className = 'timer-time danger';
         else if (totalSec <= 30) el.className = 'timer-time warning';
       }
 
-      // Round info
       const roundEl = document.getElementById('timerRound');
       if (totalRounds > 1) {
-        roundEl.textContent = `ラウンド ${currentRound} / ${totalRounds}`;
+        roundEl.textContent = `Round ${currentRound} / ${totalRounds}`;
       } else {
         roundEl.textContent = '';
       }
 
-      // Progress
+      // Circular progress
       if (totalMs > 0) {
-        const pct = ((totalMs - remainingMs) / totalMs) * 100;
-        document.getElementById('progressFill').style.width = `${Math.min(100, Math.max(0, pct))}%`;
+        const pct = remainingMs / totalMs;
+        const offset = CIRCUMFERENCE * (1 - pct);
+        document.getElementById('circleProgress').setAttribute('stroke-dashoffset', offset);
+        document.getElementById('circleGlow').setAttribute('stroke-dashoffset', offset);
       }
+
+      // Update checkpoint markers
+      updateCpMarkers();
     }
 
     function updateButton() {
       const btn = document.getElementById('btnStartPause');
+      const label = document.getElementById('btnLabel');
+      const icon = document.getElementById('iconPlay');
       if (timerState === 'running') {
-        btn.textContent = '一時停止';
+        label.textContent = 'Pause';
+        icon.innerHTML = '<rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>';
         btn.className = 'btn btn-pause';
       } else {
-        btn.textContent = timerState === 'paused' ? '再開' : 'スタート';
+        label.textContent = timerState === 'paused' ? 'Resume' : 'Start';
+        icon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
         btn.className = 'btn btn-start';
       }
     }
 
+    // ---- Checkpoint indicators ----
     function renderCpIndicators() {
       const el = document.getElementById('cpIndicators');
       el.innerHTML = '';
       checkpoints.forEach((cp, i) => {
         const m = Math.floor(cp.elapsedSec / 60);
         const s = cp.elapsedSec % 60;
-        const label = m > 0 ? `${m}:${String(s).padStart(2,'0')}` : `${s}秒`;
-        const dot = document.createElement('div');
-        dot.className = 'cp-dot';
-        dot.id = `cp-dot-${i}`;
-        dot.textContent = `${label} (${'🔔'.repeat(cp.chimeCount)})`;
-        el.appendChild(dot);
+        const label = m > 0 ? `${m}:${String(s).padStart(2,'0')}` : `${s}s`;
+        const card = document.createElement('div');
+        card.className = 'bell-card';
+        card.id = `cp-card-${i}`;
+
+        let bellIcons = '';
+        for (let b = 0; b < cp.chimeCount; b++) {
+          bellIcons += miniBellSVG(14, '#ffd700');
+        }
+
+        card.innerHTML = `
+          ${bellSVG(20, '#ffd700')}
+          <span class="bell-label">${label}</span>
+          <span class="bell-count">${bellIcons}</span>
+        `;
+        el.appendChild(card);
       });
       updateCpIndicators();
     }
 
     function updateCpIndicators() {
       checkpoints.forEach((cp, i) => {
-        const dot = document.getElementById(`cp-dot-${i}`);
-        if (dot) {
+        const card = document.getElementById(`cp-card-${i}`);
+        if (card) {
           const key = `${currentRound}-${i}`;
-          dot.className = passedCheckpoints.has(key) ? 'cp-dot passed' : 'cp-dot';
+          card.className = passedCheckpoints.has(key) ? 'bell-card passed' : 'bell-card';
         }
+      });
+    }
+
+    function updateCpMarkers() {
+      const container = document.getElementById('cpMarkers');
+      if (!container) return;
+      container.innerHTML = '';
+      if (totalMs <= 0) return;
+
+      const cx = 130, cy = 130, r = 115;
+      checkpoints.forEach((cp, i) => {
+        const pct = (cp.elapsedSec * 1000) / totalMs;
+        if (pct > 1) return;
+        const angle = -Math.PI/2 + 2 * Math.PI * pct;
+        const x = cx + r * Math.cos(angle);
+        const y = cy + r * Math.sin(angle);
+        const marker = document.createElement('div');
+        marker.className = 'cp-marker';
+        const key = `${currentRound}-${i}`;
+        if (passedCheckpoints.has(key)) marker.classList.add('passed');
+        marker.style.left = `${(x / 260) * 100}%`;
+        marker.style.top = `${(y / 260) * 100}%`;
+        container.appendChild(marker);
       });
     }
 
@@ -668,9 +951,8 @@
     const MAX_PRESETS = 5;
 
     function loadPresets() {
-      try {
-        return JSON.parse(localStorage.getItem('meetingTimerPresets') || '[]');
-      } catch { return []; }
+      try { return JSON.parse(localStorage.getItem('meetingTimerPresets') || '[]'); }
+      catch { return []; }
     }
 
     function savePresets(presets) {
@@ -683,7 +965,7 @@
       list.innerHTML = '';
 
       if (presets.length === 0) {
-        list.innerHTML = '<div style="color:#666;font-size:0.85rem;padding:8px;">保存されたプリセットはありません</div>';
+        list.innerHTML = '<div style="color:#444;font-size:0.85rem;padding:8px;text-align:center;">No saved presets</div>';
         return;
       }
 
@@ -694,15 +976,14 @@
         const div = document.createElement('div');
         div.className = 'preset-item';
         div.innerHTML = `
-          <span class="preset-name">${escapeHtml(p.name || `プリセット${i+1}`)}</span>
-          <span class="preset-detail">${m}:${String(s).padStart(2,'0')} × ${p.repeat}回 CP:${(p.checkpoints||[]).length}</span>
-          <button class="btn-sm btn-load" onclick="loadPreset(${i})">読込</button>
-          <button class="btn-sm btn-del" onclick="deletePreset(${i})">削除</button>
+          <span class="preset-name">${escapeHtml(p.name || `Preset ${i+1}`)}</span>
+          <span class="preset-detail">${m}:${String(s).padStart(2,'0')} x${p.repeat} ${bellSVG(12, '#ffd700')}${(p.checkpoints||[]).length}</span>
+          <button class="btn-sm btn-load" onclick="loadPreset(${i})">Load</button>
+          <button class="btn-sm btn-del" onclick="deletePreset(${i})">Del</button>
         `;
         list.appendChild(div);
       });
 
-      // Tabs
       renderPresetTabs(presets);
     }
 
@@ -721,10 +1002,10 @@
     function saveCurrentPreset() {
       const presets = loadPresets();
       if (presets.length >= MAX_PRESETS) {
-        alert(`プリセットは最大${MAX_PRESETS}つまでです。\n不要なプリセットを削除してください。`);
+        alert(`Max ${MAX_PRESETS} presets allowed.`);
         return;
       }
-      const name = document.getElementById('presetNameInput').value.trim() || `プリセット${presets.length + 1}`;
+      const name = document.getElementById('presetNameInput').value.trim() || `Preset ${presets.length + 1}`;
       const s = getSettings();
       presets.push({ name, ...s });
       savePresets(presets);
@@ -737,7 +1018,6 @@
       if (presets[idx]) {
         resetTimer();
         applySettings(presets[idx]);
-        // Also reset timer with new settings
         const s = presets[idx];
         totalMs = (s.minutes * 60 + s.seconds) * 1000;
         remainingMs = totalMs;
@@ -748,7 +1028,6 @@
         updateDisplay();
         renderCpIndicators();
 
-        // Highlight active tab
         document.querySelectorAll('.tab').forEach((t, i) => {
           t.className = i === idx ? 'tab active' : 'tab';
         });
@@ -791,7 +1070,6 @@
 
     init();
 
-    // Register Service Worker
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').catch(() => {});
     }
