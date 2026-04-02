@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#1a1a2e">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <title>Meeting Timer</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow-x: hidden;
+    }
+
+    .app {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 16px;
+      min-height: 100vh;
+      min-height: 100dvh;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.3rem;
+      padding: 12px 0;
+      color: #e94560;
+      letter-spacing: 2px;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 16px;
+    }
+    .tab {
+      flex: 1;
+      padding: 10px 4px;
+      background: #16213e;
+      border: 2px solid #0f3460;
+      border-radius: 8px;
+      color: #aaa;
+      font-size: 0.85rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab.active {
+      background: #0f3460;
+      color: #fff;
+      border-color: #e94560;
+    }
+
+    /* Timer Display */
+    .timer-display {
+      text-align: center;
+      padding: 24px 0;
+    }
+    .timer-time {
+      font-size: 4.5rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: #fff;
+      letter-spacing: 2px;
+    }
+    .timer-time.warning { color: #f5a623; }
+    .timer-time.danger { color: #e94560; animation: pulse 1s infinite; }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .timer-info {
+      margin-top: 8px;
+      font-size: 0.9rem;
+      color: #888;
+    }
+    .timer-round {
+      font-size: 1.1rem;
+      color: #e94560;
+      margin-top: 4px;
+    }
+
+    /* Progress Bar */
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      background: #16213e;
+      border-radius: 3px;
+      margin: 12px 0;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #e94560, #f5a623);
+      border-radius: 3px;
+      transition: width 0.3s;
+    }
+
+    /* Checkpoint indicators */
+    .checkpoint-indicators {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+      margin: 8px 0 16px;
+    }
+    .cp-dot {
+      padding: 4px 10px;
+      background: #16213e;
+      border: 1px solid #0f3460;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      color: #888;
+      transition: all 0.3s;
+    }
+    .cp-dot.passed {
+      background: #e94560;
+      border-color: #e94560;
+      color: #fff;
+    }
+
+    /* Controls */
+    .controls {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin: 16px 0;
+    }
+    .btn {
+      padding: 14px 28px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn:active { transform: scale(0.95); }
+    .btn-start {
+      background: #e94560;
+      color: #fff;
+      flex: 1;
+      max-width: 200px;
+    }
+    .btn-pause {
+      background: #f5a623;
+      color: #1a1a2e;
+      flex: 1;
+      max-width: 200px;
+    }
+    .btn-reset {
+      background: #16213e;
+      color: #aaa;
+      border: 2px solid #0f3460;
+    }
+
+    /* Settings Panel */
+    .settings-panel {
+      background: #16213e;
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 12px;
+    }
+    .settings-panel h2 {
+      font-size: 1rem;
+      color: #e94560;
+      margin-bottom: 12px;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      color: #aaa;
+      margin-bottom: 6px;
+    }
+    .form-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .form-row span {
+      color: #888;
+      font-size: 0.9rem;
+    }
+
+    input[type="number"], select {
+      background: #1a1a2e;
+      border: 2px solid #0f3460;
+      border-radius: 8px;
+      color: #fff;
+      padding: 10px 12px;
+      font-size: 1rem;
+      width: 80px;
+      text-align: center;
+      -webkit-appearance: none;
+    }
+    input[type="number"]:focus, select:focus {
+      outline: none;
+      border-color: #e94560;
+    }
+
+    /* Checkpoints */
+    .checkpoints {
+      margin-top: 12px;
+    }
+    .checkpoint-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 0;
+      border-bottom: 1px solid #0f3460;
+    }
+    .checkpoint-item:last-child { border-bottom: none; }
+
+    .cp-remove {
+      background: none;
+      border: none;
+      color: #e94560;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 4px 8px;
+    }
+
+    .btn-add-cp {
+      width: 100%;
+      padding: 10px;
+      background: #0f3460;
+      border: 2px dashed #e94560;
+      border-radius: 8px;
+      color: #e94560;
+      font-size: 0.9rem;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    /* Preset Buttons */
+    .presets {
+      margin-top: 16px;
+    }
+    .presets h2 {
+      font-size: 1rem;
+      color: #e94560;
+      margin-bottom: 8px;
+    }
+    .preset-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .preset-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      background: #1a1a2e;
+      border: 1px solid #0f3460;
+      border-radius: 8px;
+    }
+    .preset-item .preset-name {
+      flex: 1;
+      font-size: 0.9rem;
+      color: #ccc;
+    }
+    .preset-item .preset-detail {
+      font-size: 0.75rem;
+      color: #888;
+    }
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 0.75rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .btn-load { background: #0f3460; color: #fff; }
+    .btn-save { background: #e94560; color: #fff; }
+    .btn-del { background: #333; color: #e94560; }
+
+    .preset-name-input {
+      background: #1a1a2e;
+      border: 1px solid #0f3460;
+      border-radius: 6px;
+      color: #fff;
+      padding: 6px 8px;
+      font-size: 0.85rem;
+      width: 120px;
+    }
+
+    /* View toggle */
+    .view-toggle {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 12px;
+    }
+    .view-btn {
+      flex: 1;
+      padding: 8px;
+      background: #16213e;
+      border: 1px solid #0f3460;
+      border-radius: 8px;
+      color: #888;
+      font-size: 0.85rem;
+      text-align: center;
+      cursor: pointer;
+    }
+    .view-btn.active {
+      background: #0f3460;
+      color: #fff;
+      border-color: #e94560;
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>Meeting Timer</h1>
+
+    <!-- Preset Tabs -->
+    <div class="tabs" id="presetTabs"></div>
+
+    <!-- View Toggle -->
+    <div class="view-toggle">
+      <div class="view-btn active" data-view="timer" onclick="switchView('timer')">タイマー</div>
+      <div class="view-btn" data-view="settings" onclick="switchView('settings')">設定</div>
+    </div>
+
+    <!-- Timer View -->
+    <div id="timerView">
+      <div class="timer-display">
+        <div class="timer-time" id="timerTime">00:00</div>
+        <div class="timer-round" id="timerRound"></div>
+        <div class="timer-info" id="timerInfo"></div>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width:0%"></div>
+      </div>
+      <div class="checkpoint-indicators" id="cpIndicators"></div>
+      <div class="controls">
+        <button class="btn btn-reset" onclick="resetTimer()">リセット</button>
+        <button class="btn btn-start" id="btnStartPause" onclick="toggleTimer()">スタート</button>
+      </div>
+    </div>
+
+    <!-- Settings View -->
+    <div id="settingsView" class="hidden">
+      <div class="settings-panel">
+        <h2>タイマー設定</h2>
+        <div class="form-group">
+          <label>カウントダウン時間</label>
+          <div class="form-row">
+            <input type="number" id="setMinutes" min="0" max="99" value="5">
+            <span>分</span>
+            <input type="number" id="setSeconds" min="0" max="59" value="0">
+            <span>秒</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>繰り返し回数</label>
+          <div class="form-row">
+            <input type="number" id="setRepeat" min="1" max="99" value="1">
+            <span>回</span>
+          </div>
+        </div>
+
+        <h2>チェックポイント (経過時間で指定)</h2>
+        <div id="checkpointList" class="checkpoints"></div>
+        <button class="btn-add-cp" onclick="addCheckpoint()">+ チェックポイント追加</button>
+      </div>
+
+      <div class="presets">
+        <h2>プリセット保存</h2>
+        <div class="form-row" style="margin-bottom:8px;">
+          <input type="text" class="preset-name-input" id="presetNameInput" placeholder="プリセット名">
+          <button class="btn-sm btn-save" onclick="saveCurrentPreset()">現在の設定を保存</button>
+        </div>
+        <div class="preset-list" id="presetList"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ---- Audio ----
+    const bellAudio = new Audio('bell1.mp3');
+    bellAudio.preload = 'auto';
+    bellAudio.load();
+    const bell2Audio = new Audio('bell2.mp3');
+    bell2Audio.preload = 'auto';
+    bell2Audio.load();
+
+    function playChime(count = 1) {
+      for (let i = 0; i < count; i++) {
+        setTimeout(() => {
+          const snd = bellAudio.cloneNode();
+          snd.volume = 1.0;
+          snd.play().catch(err => console.log('Audio play failed:', err));
+        }, i * 1500);
+      }
+    }
+
+    function playEndChime() {
+      const snd = bell2Audio.cloneNode();
+      snd.volume = 1.0;
+      snd.play().catch(err => console.log('Audio play failed:', err));
+    }
+
+    // ---- State ----
+    let timerState = 'stopped'; // stopped, running, paused
+    let remainingMs = 0;
+    let totalMs = 0;
+    let currentRound = 1;
+    let totalRounds = 1;
+    let intervalId = null;
+    let lastTick = 0;
+    let checkpoints = []; // { elapsedSec, chimeCount }
+    let passedCheckpoints = new Set();
+
+    // ---- Settings ----
+    function getSettings() {
+      return {
+        minutes: parseInt(document.getElementById('setMinutes').value) || 0,
+        seconds: parseInt(document.getElementById('setSeconds').value) || 0,
+        repeat: parseInt(document.getElementById('setRepeat').value) || 1,
+        checkpoints: getCheckpointsFromUI()
+      };
+    }
+
+    function applySettings(s) {
+      document.getElementById('setMinutes').value = s.minutes;
+      document.getElementById('setSeconds').value = s.seconds;
+      document.getElementById('setRepeat').value = s.repeat;
+      renderCheckpoints(s.checkpoints || []);
+    }
+
+    function getCheckpointsFromUI() {
+      const items = document.querySelectorAll('.checkpoint-item');
+      const cps = [];
+      items.forEach(item => {
+        const mins = parseInt(item.querySelector('.cp-min').value) || 0;
+        const secs = parseInt(item.querySelector('.cp-sec').value) || 0;
+        const chimes = parseInt(item.querySelector('.cp-chime').value) || 1;
+        const elapsedSec = mins * 60 + secs;
+        if (elapsedSec > 0) {
+          cps.push({ elapsedSec, chimeCount: chimes });
+        }
+      });
+      return cps.sort((a, b) => a.elapsedSec - b.elapsedSec);
+    }
+
+    // ---- Checkpoints UI ----
+    function renderCheckpoints(cps) {
+      const list = document.getElementById('checkpointList');
+      list.innerHTML = '';
+      cps.forEach((cp, i) => {
+        const mins = Math.floor(cp.elapsedSec / 60);
+        const secs = cp.elapsedSec % 60;
+        const div = document.createElement('div');
+        div.className = 'checkpoint-item';
+        div.innerHTML = `
+          <span style="color:#aaa;font-size:0.8rem;width:20px;">${i + 1}.</span>
+          <input type="number" class="cp-min" min="0" max="99" value="${mins}" style="width:60px">
+          <span>分</span>
+          <input type="number" class="cp-sec" min="0" max="59" value="${secs}" style="width:60px">
+          <span>秒</span>
+          <span style="margin-left:8px;">鳴</span>
+          <input type="number" class="cp-chime" min="1" max="10" value="${cp.chimeCount}" style="width:50px">
+          <span>回</span>
+          <button class="cp-remove" onclick="removeCheckpoint(${i})">×</button>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    function addCheckpoint() {
+      const cps = getCheckpointsFromUI();
+      cps.push({ elapsedSec: 60, chimeCount: 1 });
+      renderCheckpoints(cps);
+    }
+
+    function removeCheckpoint(idx) {
+      const cps = getCheckpointsFromUI();
+      cps.splice(idx, 1);
+      renderCheckpoints(cps);
+    }
+
+    // ---- Timer Logic ----
+    function startTimer() {
+      const s = getSettings();
+      totalMs = (s.minutes * 60 + s.seconds) * 1000;
+      if (totalMs <= 0) return;
+
+      totalRounds = s.repeat;
+      checkpoints = s.checkpoints;
+
+      if (timerState === 'stopped') {
+        remainingMs = totalMs;
+        currentRound = 1;
+        passedCheckpoints.clear();
+      }
+
+      timerState = 'running';
+      lastTick = Date.now();
+      updateDisplay();
+      updateButton();
+      renderCpIndicators();
+
+      intervalId = setInterval(() => {
+        const now = Date.now();
+        const delta = now - lastTick;
+        lastTick = now;
+        remainingMs -= delta;
+
+        // Check checkpoints
+        const elapsedMs = totalMs - remainingMs;
+        const elapsedSec = Math.floor(elapsedMs / 1000);
+        checkpoints.forEach((cp, i) => {
+          const key = `${currentRound}-${i}`;
+          if (elapsedSec >= cp.elapsedSec && !passedCheckpoints.has(key)) {
+            passedCheckpoints.add(key);
+            playChime(cp.chimeCount);
+            updateCpIndicators();
+          }
+        });
+
+        if (remainingMs <= 0) {
+          remainingMs = 0;
+          updateDisplay();
+
+          // End of round chime
+          playEndChime();
+
+          if (currentRound < totalRounds) {
+            currentRound++;
+            remainingMs = totalMs;
+            passedCheckpoints = new Set([...passedCheckpoints].filter(k => !k.startsWith(`${currentRound}-`)));
+            renderCpIndicators();
+          } else {
+            clearInterval(intervalId);
+            timerState = 'stopped';
+            updateButton();
+            return;
+          }
+        }
+
+        updateDisplay();
+      }, 50);
+    }
+
+    function pauseTimer() {
+      clearInterval(intervalId);
+      timerState = 'paused';
+      updateButton();
+    }
+
+    function resetTimer() {
+      clearInterval(intervalId);
+      timerState = 'stopped';
+      const s = getSettings();
+      totalMs = (s.minutes * 60 + s.seconds) * 1000;
+      remainingMs = totalMs;
+      currentRound = 1;
+      passedCheckpoints.clear();
+      updateDisplay();
+      updateButton();
+      renderCpIndicators();
+    }
+
+    function toggleTimer() {
+      // Unlock audio on user gesture
+      bellAudio.volume = 0;
+      bellAudio.play().then(() => {
+        bellAudio.pause();
+        bellAudio.currentTime = 0;
+        bellAudio.volume = 1.0;
+      }).catch(() => {});
+
+      if (timerState === 'running') {
+        pauseTimer();
+      } else {
+        startTimer();
+      }
+    }
+
+    function updateDisplay() {
+      const totalSec = Math.max(0, Math.ceil(remainingMs / 1000));
+      const mins = Math.floor(totalSec / 60);
+      const secs = totalSec % 60;
+      const timeStr = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+
+      const el = document.getElementById('timerTime');
+      el.textContent = timeStr;
+
+      // Color warnings
+      el.className = 'timer-time';
+      if (timerState === 'running') {
+        if (totalSec <= 10) el.className = 'timer-time danger';
+        else if (totalSec <= 30) el.className = 'timer-time warning';
+      }
+
+      // Round info
+      const roundEl = document.getElementById('timerRound');
+      if (totalRounds > 1) {
+        roundEl.textContent = `ラウンド ${currentRound} / ${totalRounds}`;
+      } else {
+        roundEl.textContent = '';
+      }
+
+      // Progress
+      if (totalMs > 0) {
+        const pct = ((totalMs - remainingMs) / totalMs) * 100;
+        document.getElementById('progressFill').style.width = `${Math.min(100, Math.max(0, pct))}%`;
+      }
+    }
+
+    function updateButton() {
+      const btn = document.getElementById('btnStartPause');
+      if (timerState === 'running') {
+        btn.textContent = '一時停止';
+        btn.className = 'btn btn-pause';
+      } else {
+        btn.textContent = timerState === 'paused' ? '再開' : 'スタート';
+        btn.className = 'btn btn-start';
+      }
+    }
+
+    function renderCpIndicators() {
+      const el = document.getElementById('cpIndicators');
+      el.innerHTML = '';
+      checkpoints.forEach((cp, i) => {
+        const m = Math.floor(cp.elapsedSec / 60);
+        const s = cp.elapsedSec % 60;
+        const label = m > 0 ? `${m}:${String(s).padStart(2,'0')}` : `${s}秒`;
+        const dot = document.createElement('div');
+        dot.className = 'cp-dot';
+        dot.id = `cp-dot-${i}`;
+        dot.textContent = `${label} (${'🔔'.repeat(cp.chimeCount)})`;
+        el.appendChild(dot);
+      });
+      updateCpIndicators();
+    }
+
+    function updateCpIndicators() {
+      checkpoints.forEach((cp, i) => {
+        const dot = document.getElementById(`cp-dot-${i}`);
+        if (dot) {
+          const key = `${currentRound}-${i}`;
+          dot.className = passedCheckpoints.has(key) ? 'cp-dot passed' : 'cp-dot';
+        }
+      });
+    }
+
+    // ---- Presets ----
+    const MAX_PRESETS = 5;
+
+    function loadPresets() {
+      try {
+        return JSON.parse(localStorage.getItem('meetingTimerPresets') || '[]');
+      } catch { return []; }
+    }
+
+    function savePresets(presets) {
+      localStorage.setItem('meetingTimerPresets', JSON.stringify(presets));
+    }
+
+    function renderPresets() {
+      const presets = loadPresets();
+      const list = document.getElementById('presetList');
+      list.innerHTML = '';
+
+      if (presets.length === 0) {
+        list.innerHTML = '<div style="color:#666;font-size:0.85rem;padding:8px;">保存されたプリセットはありません</div>';
+        return;
+      }
+
+      presets.forEach((p, i) => {
+        const totalSec = p.minutes * 60 + p.seconds;
+        const m = Math.floor(totalSec / 60);
+        const s = totalSec % 60;
+        const div = document.createElement('div');
+        div.className = 'preset-item';
+        div.innerHTML = `
+          <span class="preset-name">${escapeHtml(p.name || `プリセット${i+1}`)}</span>
+          <span class="preset-detail">${m}:${String(s).padStart(2,'0')} × ${p.repeat}回 CP:${(p.checkpoints||[]).length}</span>
+          <button class="btn-sm btn-load" onclick="loadPreset(${i})">読込</button>
+          <button class="btn-sm btn-del" onclick="deletePreset(${i})">削除</button>
+        `;
+        list.appendChild(div);
+      });
+
+      // Tabs
+      renderPresetTabs(presets);
+    }
+
+    function renderPresetTabs(presets) {
+      const tabs = document.getElementById('presetTabs');
+      tabs.innerHTML = '';
+      presets.forEach((p, i) => {
+        const tab = document.createElement('div');
+        tab.className = 'tab';
+        tab.textContent = p.name || `P${i+1}`;
+        tab.onclick = () => loadPreset(i);
+        tabs.appendChild(tab);
+      });
+    }
+
+    function saveCurrentPreset() {
+      const presets = loadPresets();
+      if (presets.length >= MAX_PRESETS) {
+        alert(`プリセットは最大${MAX_PRESETS}つまでです。\n不要なプリセットを削除してください。`);
+        return;
+      }
+      const name = document.getElementById('presetNameInput').value.trim() || `プリセット${presets.length + 1}`;
+      const s = getSettings();
+      presets.push({ name, ...s });
+      savePresets(presets);
+      document.getElementById('presetNameInput').value = '';
+      renderPresets();
+    }
+
+    function loadPreset(idx) {
+      const presets = loadPresets();
+      if (presets[idx]) {
+        resetTimer();
+        applySettings(presets[idx]);
+        // Also reset timer with new settings
+        const s = presets[idx];
+        totalMs = (s.minutes * 60 + s.seconds) * 1000;
+        remainingMs = totalMs;
+        totalRounds = s.repeat;
+        checkpoints = s.checkpoints || [];
+        currentRound = 1;
+        passedCheckpoints.clear();
+        updateDisplay();
+        renderCpIndicators();
+
+        // Highlight active tab
+        document.querySelectorAll('.tab').forEach((t, i) => {
+          t.className = i === idx ? 'tab active' : 'tab';
+        });
+
+        switchView('timer');
+      }
+    }
+
+    function deletePreset(idx) {
+      const presets = loadPresets();
+      presets.splice(idx, 1);
+      savePresets(presets);
+      renderPresets();
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    // ---- View Toggle ----
+    function switchView(view) {
+      document.getElementById('timerView').className = view === 'timer' ? '' : 'hidden';
+      document.getElementById('settingsView').className = view === 'settings' ? '' : 'hidden';
+      document.querySelectorAll('.view-btn').forEach(b => {
+        b.className = b.dataset.view === view ? 'view-btn active' : 'view-btn';
+      });
+    }
+
+    // ---- Init ----
+    function init() {
+      renderCheckpoints([]);
+      renderPresets();
+      const s = getSettings();
+      totalMs = (s.minutes * 60 + s.seconds) * 1000;
+      remainingMs = totalMs;
+      updateDisplay();
+    }
+
+    init();
+
+    // Register Service Worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+  </script>
+</body>
+</html>
